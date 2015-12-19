@@ -6,6 +6,10 @@ import net.sf.json.xml.XMLSerializer;
 import com.jayway.jsonpath.JsonPath;
 
 public class JsonXml {
+	
+	public static void main(String[] args){
+		
+	}
 
 	public static String xml2json(String xml) {
 		return new XMLSerializer().read(xml).toString();
