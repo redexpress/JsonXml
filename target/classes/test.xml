@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<o>
+	<address class="array">
+		<e class="object">
+			<city type="string">Shenzhen</city>
+			<province type="string">Guangdong</province>
+		</e>
+		<e class="object">
+			<city type="string">Zhumadian</city>
+			<province type="string">Henan</province>
+		</e>
+	</address>
+	<name type="string">Gavin Yang</name>
+	<site type="string">http://redexpress.github.com</site>
+</o>
