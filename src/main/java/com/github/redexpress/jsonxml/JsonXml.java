@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,19 +20,79 @@ import javax.xml.xpath.XPathFactory;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.jayway.jsonpath.JsonPath;
 
 public class JsonXml {
+	private static boolean isXml;
+	private static boolean isXPath;
+	private static boolean isFile;
 	
-	public static void main(String[] args){
-		
-	}
+	public static void main(String[] a) throws Exception{
+		String[] args = new String[] {};
+		Options options = new Options();
+		String help = "JsonXml [options] <input> <query>\n"
+				+ "input        JSON string or XML string or filename (with option -f)\n"
+				+ "query        JSONPath string or XPath string (with option -p)\n"
+				+ "where possible options include:";
+		options.addOption("x", false, "input is XML format, default is JSON");
+		options.addOption("p", false, "query is XPath, default is JSONPath");
+		options.addOption("f", false, "load input from file, default regard as string");
+		options.addOption("i", "info", false, "print debug information");
+		options.addOption("h", "help", false, "print help information");
 
-	public static String xml2json(String xml) {
-		return new XMLSerializer().read(xml).toString();
+		HelpFormatter formatter = new HelpFormatter();
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = null;
+		try {
+			cmd = parser.parse(options, args);
+		} catch (ParseException e) {
+			System.out.println("JsonXml: error: paramters parse error");
+			formatter.printHelp(help, options);
+			System.exit(1);
+		}
+		List<String> argsList = cmd.getArgList();
+		if (argsList.size() < 2){
+			System.out.println("JsonXml: error: missing paramters");
+			formatter.printHelp(help, options);
+			System.exit(1);
+		}
+		String input = argsList.get(0);
+		String query = argsList.get(1);
+		isXml = cmd.hasOption('h');
+		isFile = cmd.hasOption('f');
+		isXPath = cmd.hasOption('p');
+		String result = "";
+		if (isXml) {
+			if (isFile) {
+				result = findStringFromXmlFileByXpath(input, query);
+			} else {
+				result = findStringFromXmlByXpath(input, query);
+			}
+		} else {
+			if (isXPath) {
+				if (isFile) {
+					result = findStringFromJsonFileByXpath(input, query);
+				} else {
+					result = findStringFromJsonByXpath(input, query);
+				}
+			} else {
+				if (isFile) {
+					result = findStringFromJsonFileByJsonPath(input, query);
+				} else {
+					result = findStringFromJsonByJsonPath(input, query);
+				}
+			}
+		}
+		System.out.println(result);
 	}
 
 	public static String json2xml(String json) {
